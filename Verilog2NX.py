@@ -6,7 +6,10 @@ import re
 import mmap
 
 import networkx as nx
+
 import matplotlib.pyplot as plt
+import matplotlib
+#matplotlib.use("TkAgg")
 
 #module_reg = r"\s*module\s*(?P<module>\s*[a-zA-Z][\w]*)\s*\((?P<ports>[\s*\w*,]*)\)\s*;(?P<module_netlist>[\w*\s*,;\(\)\.]*?)endmodule"
 module_reg = r"^[ ]*module\s*(?P<module_name>[a-zA-Z][\w]*)\s\((?P<module_ports>[\s\w,]*)\)\s*;(?P<module_netlist>[\s\w.,\(\);\/]*?)endmodule"
@@ -21,7 +24,7 @@ m_frm = 'utf-8'
 """
 in_v input verilog file
 """
-def get_modules(in_v, debug=False):
+def get_modules(in_v, visual=False, debug=False):
 
     # get modules
     mod_re_b = bytes(module_reg, 'utf-8')
@@ -61,7 +64,7 @@ def get_modules(in_v, debug=False):
         
         # build out netlist
         mod_parsed_net = parse_net(m.group('module_netlist'), mod_names=mod_names, mod_graph=mod_graphs[mod_name]['netlist'])
-        print(mod_parsed_net)
+        #print(mod_parsed_net)
     
         for p in mod_ports:
             if p in mod_parsed_net['inputs']:
@@ -84,14 +87,20 @@ def get_modules(in_v, debug=False):
         else:
             continue
  
-    for G_el in mod_graphs:
-        print(G_el)
-        G = mod_graphs[G_el]['netlist']
-        #subax1 = plt.subplot(121)
-        nx.draw(G, with_labels=True, font_weight='bold')
-        #subax2 = plt.subplot(122)
-        #nx.draw_shell(G, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
-        plt.show()
+    if visual:
+        for G_el in mod_graphs:
+            #print(G_el)
+            G = mod_graphs[G_el]['netlist']
+            #pos = {n:(ind*5, (ind/6-ind%6)*10) for ind,n in enumerate(G.nodes)}
+            
+            #subax1 = plt.subplot(121)
+            #nx.draw(G, pos=pos, with_labels=True, font_weight='bold')
+            nx.draw(G, with_labels=True, font_weight='bold')
+            #subax2 = plt.subplot(122)
+            #nx.draw_shell(G, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
+            plt.show()
+
+    return mod_nets, mod_graphs
 
 def parse_net(in_net, mod_names=None, mod_graph=None, debug=False):
 

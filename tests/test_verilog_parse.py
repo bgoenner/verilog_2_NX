@@ -6,5 +6,5 @@ def test_build_lists():
 
     in_file = "tests/test_verilog.v"
 
-    get_modules(in_v=in_file)
+    get_modules(in_v=in_file, visual=True)
 

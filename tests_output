@@ -6,12 +6,6 @@ collected 1 item
 
 tests/test_verilog_parse.py .                                            [100%]
 
-=============================== warnings summary ===============================
-tests/test_verilog_parse.py::test_build_lists
-  /home/bg/Software/MFDA/Verilog_2_NX/Verilog2NX.py:94: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
-    plt.show()
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 ==================================== PASSES ====================================
 _______________________________ test_build_lists _______________________________
 ----------------------------- Captured stdout call -----------------------------
@@ -37,6 +31,4 @@ diffmix_25px_0      mix1    (.a_fluid(connect2), .b_fluid(connect5), .out_fluid(
 diffmix_25px_0
 serpentine_300px_0  serp5  (.in_fluid(connect6), .out_fluid(out));
 serpentine_300px_0
-{'inputs': [['soln1', 'soln2', 'soln3']], 'outputs': [['out']], 'wires': [['connect0', 'connect1', 'connect2', 'connect3', 'connect4', 'connect5', 'connect6']], 'components': {'serp0': {'component_type': 'serpentine_50px_0', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect0'}, 'isModule': False}, 'serp1': {'component_type': 'serpentine_150px_0', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect1'}, 'isModule': False}, 'mix0': {'component_type': 'diffmix_25px_0', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect2'}, 'isModule': False}, 'serp2': {'component_type': 'serpentine_300px_2', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect3'}, 'isModule': False}, 'serp3': {'component_type': 'serpentine_300px_2', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect4'}, 'isModule': False}, 'serp4': {'component_type': 'serpentine_300px_2', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect5'}, 'isModule': False}, 'mix1': {'component_type': 'diffmix_25px_0', 'ports': {'comp_port': 'out_fluid', 'net_port': 'connect6'}, 'isModule': False}, 'serp5': {'component_type': 'serpentine_300px_0', 'ports': {'comp_port': 'out_fluid', 'net_port': 'out'}, 'isModule': False}}}
-demo
-========================= 1 passed, 1 warning in 0.83s =========================
+============================== 1 passed in 3.66s ===============================
