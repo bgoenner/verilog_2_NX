@@ -38,11 +38,12 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
 
     mod_graphs = {} # place for nx graph mod_name : {'netlist':Graph()}
 
-    print(mo)
+    #print(mo)
 
     # get module names
     for m in mo:
-        print(m.group('module_netlist').decode('utf-8'))
+        if debug:
+            print(m.group('module_netlist').decode('utf-8'))
         mod_nets[m.group('module_name').decode('utf-8')] = {
             'ports':{},
             'wires':[],
@@ -56,7 +57,8 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
                 'outputs':[],
                 'wires':[]}
 
-    print(mod_graphs)
+    if debug:
+        print(mod_graphs)
 
     with open(in_v, 'r+') as f:
         data = mmap.mmap(f.fileno(), 0)
@@ -82,7 +84,8 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
         mod_nets[mod_name]['wires'] = mod_parsed_net['wires']
         mod_nets[mod_name]['components'] = mod_parsed_net['components']
 
-    print(mod_names)
+    if debug:
+        print(mod_names)
 
     top_module = None
     for m in mod_names:
@@ -93,8 +96,8 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
                 raise ValueError("More than one top module")
         else:
             continue
-
-    print(top_module)
+    if debug:
+        print(top_module)
 
     if no_submodules:
         mod_graphs[top_module]['netlist'] = graphs_2_just_components(in_netlist_dict=mod_graphs, top_module=top_module)
@@ -116,7 +119,7 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
 
     return mod_nets, mod_graphs
 
-def graphs_2_just_components(in_netlist_dict, top_module, in_netlist=None):
+def graphs_2_just_components(in_netlist_dict, top_module, in_netlist=None, debug=False):
     
     if not isinstance(in_netlist, nx.Graph):
         top_graph = in_netlist_dict[top_module]['netlist']
@@ -138,14 +141,16 @@ def graphs_2_just_components(in_netlist_dict, top_module, in_netlist=None):
             new_node_map = {x:t_node+"_"+x for x in list(sub_mod_netlist.nodes)
                 if not (sub_mod_netlist.nodes[x]['node_type'] == 'input' or \
                     sub_mod_netlist.nodes[x]['node_type'] == 'output')}
-            print(new_node_map)
+            if debug:
+                print(new_node_map)
             sub_mod_netlist = nx.relabel_nodes(sub_mod_netlist, new_node_map)
             #ge['port'] = t_node+"_"+ge
 
             # attach graph to current graph
             for e in t_node_edges:
                 # get internal module port and all connecting nodes
-                print("edge: "+str(e))
+                if debug:
+                    print("edge: "+str(e))
                 ge = top_graph.edges[e[0],e[1]]
                 
                 in_edges = list(sub_mod_netlist.edges(ge['port']))
@@ -184,8 +189,8 @@ def graphs_2_just_components(in_netlist_dict, top_module, in_netlist=None):
         else:
             # do nothing
             pass
-
-    print(top_graph.nodes)
+    if debug:
+        print(top_graph.nodes)
     return top_graph
 
 
@@ -238,7 +243,8 @@ def parse_net(in_net, mod_names=None, mod_graph=None, debug=False):
             #mod_graph.add_node(cv.group('name'), node_type=cv.group('component'))
             comp_name = cv.group('name')
             comp_type = cv.group('component')
-            print(mod_names)
+            if debug:
+                print(mod_names)
             
             if isinstance(mod_names, dict):
                 
