@@ -12,6 +12,7 @@ import matplotlib
 #matplotlib.use("TkAgg")
 
 #module_reg = r"\s*module\s*(?P<module>\s*[a-zA-Z][\w]*)\s*\((?P<ports>[\s*\w*,]*)\)\s*;(?P<module_netlist>[\w*\s*,;\(\)\.]*?)endmodule"
+comm_remove= r'[ ]*\/\/.*$\n'
 module_reg = r"^[ ]*module\s*(?P<module_name>[a-zA-Z][\w]*)\s*\((?P<module_ports>[\s\w,]*)\)\s*;(?P<module_netlist>[\s\w.,\(\);\/]*?)endmodule"
 input_reg  = r"^[ ]*input\s*(?P<input_port>[\w*, \n]*);"
 output_reg = r"^[ ]*output\s*(?P<output_port>[\w*, \n]*);"
@@ -28,6 +29,8 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
 
     # get modules
     mod_re_b = bytes(module_reg, 'utf-8')
+
+    in_v = remove_comments(in_v)
 
     with open(in_v, 'r+') as f:
         data = mmap.mmap(f.fileno(), 0)
@@ -284,6 +287,23 @@ def visual_all_graphs(net_graphs):
             G = net_graphs[G_el]['netlist']
             nx.draw(G, with_labels=True, font_weight='bold')
             plt.show()
+
+def remove_comments(in_v):
+    # get modules
+    mod_re_b = bytes(comm_remove, 'utf-8')
+
+    with open(in_v, 'r+') as f:
+        data = mmap.mmap(f.fileno(), 0)
+        mo = regex.sub(mod_re_b, '', data, flags=re.MULTILINE)
+
+    f_str = mo.decode("utf-8")
+
+    #if write_output:
+    of_v = in_v+".uncommented"
+    of = open(in_v+".uncommented", 'w+')
+    of.write(f_str)
+
+    return of_v
 
 def main(in_v, out_dir):
     pass
