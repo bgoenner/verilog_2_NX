@@ -1,4 +1,4 @@
-
+# fmt:off
 import os, sys
 
 import regex
@@ -152,7 +152,7 @@ def graphs_2_just_components(in_netlist_dict, top_module, in_netlist=None, debug
                 if debug:
                     print("edge: "+str(e))
                 ge = top_graph.edges[e[0],e[1]]
-                
+
                 in_edges = list(sub_mod_netlist.edges(ge['port']))
                 in_comp =[]
                 for in_e in in_edges:
@@ -168,7 +168,7 @@ def graphs_2_just_components(in_netlist_dict, top_module, in_netlist=None, debug
                     sub_mod_netlist.remove_edge(in_e[0], in_e[1])
                 # remove port node
                 sub_mod_netlist.remove_node(ge['port'])
-                
+
                 # add edges
                 new_edges = []
                 for c in in_comp:
@@ -233,7 +233,7 @@ def parse_net(in_net, mod_names=None, mod_graph=None, debug=False):
             mod_graph.add_nodes_from([(x, {'node_type':'wire'}) for x in connections])
         else: # component
             cv = regex.match(comp_reg, v_str)
-            cp = regex.finditer(component_port_reg, cv.group('ports'), re.MULTILINE) 
+            cp = regex.finditer(component_port_reg, cv.group('ports'), re.MULTILINE)
             net_dict['components'][cv.group('name')] =  {
                 'component_type':cv.group('component'),
                 'ports':{}
@@ -245,31 +245,37 @@ def parse_net(in_net, mod_names=None, mod_graph=None, debug=False):
             comp_type = cv.group('component')
             if debug:
                 print(mod_names)
-            
+
             if isinstance(mod_names, dict):
-                
                 #if cv.group('name') in mod_names:
                 if cv.group('component') in mod_names:
                     #print(f"adding module: {comp_name}")
                     mod_names[comp_type]['isSubmodule'] = True
                     net_dict['components'][comp_name]['isModule'] = True
-                    mod_graph.add_nodes_from([(comp_name, {"node_type":"module", "mod_name":comp_type})])
+                    mod_graph.add_nodes_from([(comp_name,
+                        {"node_type":"module", "mod_name":comp_type}
+                    )])
                 else:
                     #print(f"adding component: {comp_name} of type {comp_type}")
                     net_dict['components'][comp_name]['isModule'] = False
-                    mod_graph.add_nodes_from([(comp_name, {"node_type":cv.group('component')} )])
+                    mod_graph.add_nodes_from([(comp_name,
+                        {"node_type":cv.group('component')}
+                    )])
                     #mod_graph[comp_name]['node_type'] = cv.group('component')
             else:
-                mod_graph.add_nodes_from([(cv.group('name'), {"node_type":cv.group('component')})])
+                mod_graph.add_nodes_from([(cv.group('name'),
+                    {"node_type":cv.group('component')}
+                )])
 
             for p in cp:
-                net_dict['components'][cv.group('name')]['ports'] = {
+                net_dict['components'][comp_name]['ports'] = {
                     'comp_port':p.group('component_port'),
                     'net_port':p.group('net_port')
                 }
+                nx.set_node_attributes(mod_graph, {comp_name: {p.group('component_port'):p.group('net_port')}})
+                # mod_graph[comp_name][p.group('component_port')] = p.group('net_port')
                 mod_graph.add_edge(cv.group('name'), p.group('net_port'), port=p.group('component_port'))
 
-    
     return net_dict
 
 # remember to call G[mod]['netlist']
@@ -288,3 +294,4 @@ def visual_all_graphs(net_graphs):
 def main(in_v, out_dir):
     pass
 
+# fmt: on
