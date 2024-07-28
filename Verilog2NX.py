@@ -70,19 +70,40 @@ def get_modules(in_v, visual=False, debug=False, no_submodules=False):
     for m in mo:
         mod_name = m.group('module_name').decode('utf-8')
         # remove ws and split by ,
-        mod_ports = regex.sub(r'\s', '', m.group('module_ports').decode('utf-8')).split(',')
+        mod_ports = [p.strip() for p in m.group('module_ports').decode('utf-8').split(',')]
+        #mod_ports = regex.sub(r'\s', '', m.group('module_ports').decode('utf-8')).split(',')
         
         # build out netlist
         mod_parsed_net = parse_net(m.group('module_netlist'), mod_names=mod_names, mod_graph=mod_graphs[mod_name]['netlist'])
         #print(mod_parsed_net)
     
         for p in mod_ports:
-            if p in mod_parsed_net['inputs']:
-                mod_net[mod_name]['ports'][p] = 'input'
-                mod_graph[mod_name]['inputs'].append(p)
-            elif p in mod_parsed_net['outputs']:
-                mod_net[mod_name]['ports'][p] = 'output'
-                mod_graph[mod_name]['outputs'].append(p)
+            print(p)
+            p_type = None
+            if len(p.split(' ')) == 2:
+                p_type = p.split(' ')[0]
+                p = p.split(' ')[1]
+                if p_type in ['output', 'input']:
+                    mod_parsed_net[p_type+'s'].append(p)
+                    mod_graphs[mod_name]['netlist'].nodes[p]['node_type'] = p_type
+            if p in mod_parsed_net['inputs'] or p_type == 'input':
+                mod_nets[mod_name]['ports'][p] = 'input'
+                mod_graphs[mod_name]['inputs'].append(p)
+                #mod_parsed_net[mod_name].nodes[p]['node_type'] = 'input'
+            elif p in mod_parsed_net['outputs'] or p_type == 'output':
+                mod_nets[mod_name]['ports'][p] = 'output'
+                mod_graphs[mod_name]['outputs'].append(p)
+                #mod_parsed_net[mod_name].nodes[p]['node_type'] = 'output'
+
+        if isinstance(mod_parsed_net['wires'][0], list):
+            join_list = []
+            for l_item in mod_parsed_net['wires']:
+                join_list.append(l_item)
+            mod_parsed_net['wires'] = join_list
+
+        print(mod_parsed_net)
+
+        
 
         mod_nets[mod_name]['wires'] = mod_parsed_net['wires']
         mod_nets[mod_name]['components'] = mod_parsed_net['components']
